@@ -1,35 +1,28 @@
 package com.example.user;
 
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.content.ClipData;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -302,30 +295,39 @@ public class Homepage extends AppCompatActivity implements NavigationView.OnNavi
 
 
     private void searchOrganizations(String searchText) {
-        Query query = databaseReference.orderByChild("Name").equalTo(searchText);
 
+
+        String searchTextLowercase = searchText.toLowerCase(Locale.getDefault());
+        info.clear();
+
+        Query query = databaseReference.orderByChild("Name");
 
         query.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                info.clear();
-                for (DataSnapshot snapshot : dataSnapshot.getChildren()) {
-                    Information organization = snapshot.getValue(Information.class);
-                    info.add(organization);
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
+                    Information organization = childSnapshot.getValue(Information.class);
+                    String orgNameLowercase = organization.getName().toLowerCase(Locale.getDefault());
+
+                    if (orgNameLowercase.contains(searchTextLowercase)) {
+
+                        info.add(organization);
+                    }
                 }
                 adapter2.notifyDataSetChanged();
-
-
             }
-
 
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
+                // Handle errors
             }
         });
-
-
     }
+
+
+
+
+
 
 
 }
